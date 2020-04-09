@@ -3,25 +3,53 @@ using System.Collections.Generic;
 
 namespace GradeBook
 {
+    public delegate void GradeAddedDelegate(object sender, EventArgs args);
     public class Book
     {   
         public Book(string name)
         {
             grades = new List<double>();
-            this.name = name;
+            Name = name;
         }
         public void AddGrade(double grade)
-        {
-            grades.Add(grade);
+        {   
+            if(grade >= 0 && grade <= 100)
+            {
+                grades.Add(grade);
+                if(GradeAdded != null)
+                {
+                    GradeAdded(this, new EventArgs());
+                }
+            }
+            else
+                throw new ArgumentException($"Ivalid {nameof(grade)}");
         }
-        public string GetName()
+        public void AddGrade(char letter)
         {
-            return name;
+           switch(letter)
+           {
+                case 'A':
+                    AddGrade(90);
+                    break;
+                case 'B':
+                    AddGrade(80);
+                    break;
+                case 'C':
+                    AddGrade(70);
+                    break;
+                case 'D':
+                    AddGrade(60);
+                    break;
+                case 'F':
+                    AddGrade(50);
+                    break;    
+                default:
+                    Console.WriteLine("Invalid value.");
+                    break;
+           }
         }
-        public List<double> GetGrades()
-        {
-            return grades;
-        }
+     
+        public event GradeAddedDelegate GradeAdded;
 
         public Statistics GetStatistics()
         {
@@ -38,10 +66,33 @@ namespace GradeBook
             }
             result.Averge /= grades.Count;
 
+            switch(result.Averge)
+            {
+                case var d when d >= 90.0:
+                    result.Letter = 'A';
+                    break;
+                case var d when d >= 80.0:
+                    result.Letter = 'B';
+                    break;
+                case var d when d >= 70.0:
+                    result.Letter = 'C';
+                    break;
+                case var d when d >= 60.0:
+                    result.Letter = '6';
+                    break;
+                default:
+                    result.Letter = 'F';
+                    break;
+            }
+
             return result;
         }
 
+        public string Name
+        {
+           get;
+           private set;
+        }
         List<double> grades; 
-        string name;
     }
 }
